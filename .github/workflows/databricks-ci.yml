@@ -1,0 +1,21 @@
+name: Databricks CI Pipeline
+
+on:
+  push:
+    branches: [ main ]  # Trigger on push to main
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run Databricks notebook
+      uses: databricks/run-notebook@v0.0.4  # Official Databricks GitHub Action
+      with:
+        databricks-host: ${{ secrets.DATABRICKS_HOST }}
+        databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+        local-notebook-path: notebooks/01_sample_notebook.py
+        run-name: "GitHub Action Notebook Run"
