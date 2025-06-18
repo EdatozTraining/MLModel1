@@ -1,21 +1,39 @@
-name: Databricks CI Pipeline
+name: Run Databricks Notebook using CLI
 
 on:
   push:
-    branches: [ main ]  # Trigger on push to main
+    branches: [ main ]
 
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Run Databricks notebook
-      uses: databricks/run-notebook@v0.0.4  # Official Databricks GitHub Action
-      with:
-        databricks-host: ${{ secrets.DATABRICKS_HOST }}
-        databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
-        local-notebook-path: notebooks/01_sample_notebook.py
-        run-name: "GitHub Action Notebook Run"
+    - name: Install databricks-cli
+      run: pip install databricks-cli
+
+    - name: Run Databricks Notebook
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      run: |
+        databricks configure --token <<EOF
+        $DATABRICKS_HOST
+        $DATABRICKS_TOKEN
+        EOF
+
+        # Example: Run a notebook in your repo
+        databricks runs submit --json '{
+          "run_name": "GitHub CI/CD Notebook Run",
+          "new_cluster": {
+            "spark_version": "13.3.x-scala2.12",
+            "node_type_id": "Standard_DS3_v2",
+            "num_workers": 1
+          },
+          "notebook_task": {
+            "notebook_path": "/Repos/tsthrivishnu@gmail.com/MLModel1/notebooks/01_sample_notebook"
+          }
+        }'
