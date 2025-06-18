@@ -15,7 +15,7 @@ jobs:
     - name: Install databricks-cli
       run: pip install databricks-cli
 
-    - name: Run Databricks Notebook
+    - name: Run Existing Databricks Job (Serverless)
       env:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -24,16 +24,7 @@ jobs:
         $DATABRICKS_HOST
         $DATABRICKS_TOKEN
         EOF
+    
+        # Trigger the pre-created Job by Job ID
+        databricks jobs run-now --job-id 1105196988529153
 
-        # Example: Run a notebook in your repo
-        databricks runs submit --json '{
-          "run_name": "GitHub CI/CD Notebook Run",
-          "new_cluster": {
-            "spark_version": "13.3.x-scala2.12",
-            "node_type_id": "Standard_DS3_v2",
-            "num_workers": 1
-          },
-          "notebook_task": {
-            "notebook_path": "/Repos/tsthrivishnu@gmail.com/MLModel1/notebooks/01_sample_notebook"
-          }
-        }'
